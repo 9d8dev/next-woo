@@ -21,10 +21,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create order in WooCommerce
+    // Create order in WooCommerce (unpaid - payment handled via WooCommerce checkout)
     const orderData: CreateOrderInput = {
-      payment_method: "bacs", // Bank transfer (default)
-      payment_method_title: "Direct Bank Transfer",
       set_paid: false,
       billing: body.billing,
       shipping: body.shipping,
@@ -41,6 +39,8 @@ export async function POST(request: NextRequest) {
         number: order.number,
         status: order.status,
         total: order.total,
+        payment_url: order.payment_url,
+        needs_payment: order.needs_payment,
       },
     });
   } catch (error) {

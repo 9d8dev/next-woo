@@ -107,9 +107,19 @@ export default function CheckoutPage() {
 
       const { order } = await response.json();
 
-      // Clear cart and redirect to success page
-      clearCart();
-      router.push(`/checkout/success?order=${order.id}`);
+      // Store order ID for reference, then redirect to WooCommerce payment
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("pending_order_id", order.id.toString());
+      }
+
+      // Redirect to WooCommerce checkout for payment
+      if (order.payment_url) {
+        window.location.href = order.payment_url;
+      } else {
+        // Fallback if no payment needed (free order)
+        clearCart();
+        router.push(`/checkout/success?order=${order.id}`);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -389,7 +399,7 @@ export default function CheckoutPage() {
                         Processing...
                       </>
                     ) : (
-                      "Place Order"
+                      "Proceed to Payment"
                     )}
                   </Button>
 
