@@ -49,6 +49,7 @@ Create a `.env.local` file:
 # WordPress/WooCommerce Site
 WORDPRESS_URL="https://your-wordpress-site.com"
 WORDPRESS_HOSTNAME="your-wordpress-site.com"
+NEXT_PUBLIC_WORDPRESS_URL="https://your-wordpress-site.com"
 
 # Webhook secret for cache revalidation
 WORDPRESS_WEBHOOK_SECRET="your-secret-key-here"
@@ -74,8 +75,6 @@ next-woo/
 │   ├── cart/                # Shopping cart page
 │   ├── checkout/
 │   │   └── success/         # Order confirmation
-│   ├── account/
-│   │   └── orders/          # Order history
 │   ├── posts/               # Blog posts
 │   └── pages/               # WordPress pages
 ├── components/
