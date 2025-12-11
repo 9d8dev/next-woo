@@ -2,6 +2,23 @@
 
 A headless WooCommerce storefront built with Next.js 16, React 19, and TypeScript.
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fbrijr%2Fnext-woo&env=WORDPRESS_URL,WORDPRESS_HOSTNAME,WORDPRESS_WEBHOOK_SECRET,NEXT_PUBLIC_WORDPRESS_URL,WC_CONSUMER_KEY,WC_CONSUMER_SECRET&envDescription=WordPress%20URL%2C%20hostname%20for%20images%2C%20webhook%20secret%2C%20and%20WooCommerce%20API%20credentials&project-name=next-woo&repository-name=next-woo&demo-title=Next.js%20WooCommerce%20Starter&demo-url=https%3A%2F%2Fnext-woo.com)
+
+<!-- Add your screenshot here -->
+<!-- ![Next Woo Screenshot](screenshot.png) -->
+
+## Table of Contents
+
+- [Features](#features)
+- [What's Included](#whats-included)
+- [Quick Start](#quick-start)
+- [Environment Variables](#environment-variables)
+- [WooCommerce Setup](#woocommerce-setup)
+- [Architecture](#architecture)
+- [API Functions](#api-functions)
+- [Customization](#customization)
+- [Troubleshooting](#troubleshooting)
+
 ## Features
 
 - **Full WooCommerce Integration** - Products, categories, variations, cart, and checkout
@@ -13,6 +30,27 @@ A headless WooCommerce storefront built with Next.js 16, React 19, and TypeScrip
 - **Cache Revalidation** - Automatic updates when content changes
 - **Dark Mode** - Built-in theme switching
 - **Responsive Design** - Mobile-first with Tailwind CSS v4
+
+## What's Included
+
+| Feature | Implementation |
+|---------|---------------|
+| Product browsing | Next.js pages with WooCommerce API |
+| Product search & filters | Server-side with URL params |
+| Shopping cart | Client-side with localStorage |
+| Checkout form | Next.js form, order created via API |
+| Payment processing | **Redirects to WooCommerce** (Stripe, PayPal, etc.) |
+| Account management | **Redirects to WooCommerce** My Account |
+| Order confirmation | Next.js success page |
+| Blog | WordPress posts via REST API |
+
+### Why Redirect for Payment & Accounts?
+
+Instead of building custom Stripe integration and authentication:
+- **Security** - WooCommerce handles PCI compliance
+- **Flexibility** - Store owner can change payment gateways without code changes
+- **Simplicity** - No auth infrastructure to maintain
+- **Battle-tested** - WooCommerce's checkout is proven at scale
 
 ## Quick Start
 
@@ -34,13 +72,6 @@ pnpm dev
 
 Your site is now running at `http://localhost:3000`.
 
-## Prerequisites
-
-- **Node.js** 18.17 or later
-- **pnpm** 8.0 or later
-- **WordPress** with WooCommerce installed
-- **WooCommerce REST API** credentials
-
 ## Environment Variables
 
 Create a `.env.local` file:
@@ -59,6 +90,65 @@ WORDPRESS_WEBHOOK_SECRET="your-secret-key-here"
 WC_CONSUMER_KEY="ck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 WC_CONSUMER_SECRET="cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ```
+
+## WooCommerce Setup
+
+### 1. Generate API Credentials
+
+1. Go to **WooCommerce → Settings → Advanced → REST API**
+2. Click **Add Key**
+3. Set permissions to **Read/Write**
+4. Copy the Consumer Key and Consumer Secret to your `.env.local`
+
+### 2. Configure Payment Gateway
+
+Payment is handled by WooCommerce's native checkout. Configure your payment gateway (Stripe, PayPal, etc.) in **WooCommerce → Settings → Payments**.
+
+**Important:** Set the return URL in your payment gateway settings to redirect back to your Next.js domain:
+```
+https://your-nextjs-site.com/checkout/success
+```
+
+### 3. Install Revalidation Plugin
+
+For automatic cache updates when products change:
+
+1. Download [next-revalidate.zip](https://github.com/9d8dev/next-wp/releases/latest/download/next-revalidate.zip)
+2. Upload to WordPress via **Plugins → Add New → Upload**
+3. Activate and configure in **Settings → Next.js Revalidation**
+
+## Architecture
+
+```
+┌─────────────────┐         ┌─────────────────┐
+│                 │         │                 │
+│    Next.js      │ ◄─────► │   WooCommerce   │
+│   (Frontend)    │   API   │    (Backend)    │
+│                 │         │                 │
+└────────┬────────┘         └────────┬────────┘
+         │                           │
+         │ ┌───────────────────────┐ │
+         │ │      User Flow        │ │
+         │ └───────────────────────┘ │
+         │                           │
+         ▼                           ▼
+   ┌──────────┐               ┌──────────┐
+   │  Browse  │               │  Payment │
+   │   Cart   │ ──redirect──► │  Account │
+   │ Checkout │               │  Orders  │
+   └──────────┘               └──────────┘
+    (Next.js)                (WooCommerce)
+```
+
+### Checkout Flow
+
+1. Customer adds items to cart (client-side, localStorage)
+2. Customer fills billing form on `/checkout`
+3. Order created in WooCommerce via API (unpaid)
+4. Customer redirected to `order.payment_url` (WooCommerce checkout)
+5. Customer pays via configured gateway (Stripe, PayPal, etc.)
+6. WooCommerce redirects to `/checkout/success`
+7. Cart cleared automatically
 
 ## Project Structure
 
@@ -79,14 +169,6 @@ next-woo/
 │   └── pages/               # WordPress pages
 ├── components/
 │   ├── shop/                # Shop components
-│   │   ├── product-card.tsx
-│   │   ├── product-gallery.tsx
-│   │   ├── product-grid.tsx
-│   │   ├── product-filters.tsx
-│   │   ├── variation-selector.tsx
-│   │   ├── add-to-cart-button.tsx
-│   │   ├── cart-provider.tsx
-│   │   └── cart-drawer.tsx
 │   ├── posts/               # Blog components
 │   ├── ui/                  # shadcn/ui components
 │   └── theme/               # Theme toggle
@@ -98,41 +180,6 @@ next-woo/
 ├── site.config.ts           # Site metadata
 └── menu.config.ts           # Navigation configuration
 ```
-
-## WooCommerce Setup
-
-### 1. Generate API Credentials
-
-1. Go to **WooCommerce → Settings → Advanced → REST API**
-2. Click **Add Key**
-3. Set permissions to **Read/Write**
-4. Copy the Consumer Key and Consumer Secret to your `.env.local`
-
-### 2. Configure Payment Gateway
-
-Payment is handled by WooCommerce's native checkout. Configure your payment gateway (Stripe, PayPal, etc.) in **WooCommerce → Settings → Payments**.
-
-After payment, customers are redirected to:
-```
-https://your-nextjs-site.com/checkout/success
-```
-
-### 3. Install Revalidation Plugin
-
-For automatic cache updates when products change:
-
-1. Download [next-revalidate.zip](https://github.com/9d8dev/next-wp/releases/latest/download/next-revalidate.zip)
-2. Upload to WordPress via **Plugins → Add New → Upload**
-3. Activate and configure in **Settings → Next.js Revalidation**
-
-## Checkout Flow
-
-1. Customer adds items to cart (client-side, localStorage)
-2. Customer fills billing form on `/checkout`
-3. Order created in WooCommerce (unpaid)
-4. Customer redirected to WooCommerce checkout for payment
-5. After payment, redirected to `/checkout/success`
-6. Cart cleared automatically
 
 ## API Functions
 
@@ -183,7 +230,6 @@ import { useCart } from "@/components/shop";
 function MyComponent() {
   const { cart, addItem, removeItem, updateQuantity, clearCart } = useCart();
 
-  // Add item
   await addItem({
     productId: 123,
     quantity: 1,
@@ -241,11 +287,11 @@ pnpm lint      # Run ESLint
 
 ### Checkout redirect fails
 - Verify WooCommerce checkout page is configured
-- Check payment gateway settings in WooCommerce
+- Check payment gateway return URL points to your Next.js domain
 
-### Cart not persisting
-- Check browser localStorage is enabled
-- Clear localStorage and try again
+### My Account link not working
+- Ensure `NEXT_PUBLIC_WORDPRESS_URL` is set correctly
+- Verify WooCommerce My Account page exists at `/my-account`
 
 ## Tech Stack
 
