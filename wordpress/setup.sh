@@ -30,9 +30,17 @@ fi
 
 # Install and activate WooCommerce
 if ! wp plugin is-active woocommerce --allow-root 2>/dev/null; then
-  echo "Installing WooCommerce..."
-  wp plugin install woocommerce --activate --allow-root
-  echo "WooCommerce installed and activated!"
+  echo "Installing WooCommerce (this may take a minute)..."
+  for i in 1 2 3; do
+    wp plugin install woocommerce --activate --allow-root && break
+    echo "WooCommerce install attempt $i failed, retrying..."
+    sleep 5
+  done
+  if wp plugin is-active woocommerce --allow-root 2>/dev/null; then
+    echo "WooCommerce installed and activated!"
+  else
+    echo "WARNING: WooCommerce installation failed. Please install manually from wp-admin."
+  fi
 fi
 
 # Activate the revalidation plugin if not already active
