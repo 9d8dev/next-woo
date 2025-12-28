@@ -12,7 +12,8 @@
       "Bash(pnpm build:*)",
       "Bash(mkdir:*)",
       "Bash(WORDPRESS_URL=\"\" WORDPRESS_HOSTNAME=\"\" pnpm build:*)",
-      "Bash(pnpm tsc:*)"
+      "Bash(pnpm tsc:*)",
+      "Bash(gh run list:*)"
     ],
     "deny": [],
     "ask": []
