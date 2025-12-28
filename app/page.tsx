@@ -28,7 +28,7 @@ export default function Home() {
             <h1>Headless WooCommerce with Next.js</h1>
 
             <p>
-              This is <a href="https://github.com/brijr/next-woo">next-woo</a>, a
+              This is <a href="https://github.com/9d8dev/next-woo">next-woo</a>, a
               headless WooCommerce storefront built with Next.js 16, React 19,
               and TypeScript. It features a complete e-commerce experience with
               products, cart, checkout, and customer accounts. Built with{" "}
@@ -40,7 +40,7 @@ export default function Home() {
           <div className="flex justify-between items-center gap-4">
             <a
               className="h-auto block"
-              href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fbrijr%2Fnext-woo&env=WORDPRESS_URL,WORDPRESS_HOSTNAME,WORDPRESS_WEBHOOK_SECRET,WC_CONSUMER_KEY,WC_CONSUMER_SECRET&envDescription=WordPress%20URL%2C%20hostname%20for%20images%2C%20webhook%20secret%2C%20and%20WooCommerce%20API%20credentials&project-name=next-woo&repository-name=next-woo&demo-title=Next.js%20WooCommerce%20Starter&demo-url=https%3A%2F%2Fnext-woo.com"
+              href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2F9d8dev%2Fnext-woo&env=WORDPRESS_URL,WORDPRESS_HOSTNAME,WORDPRESS_WEBHOOK_SECRET,WC_CONSUMER_KEY,WC_CONSUMER_SECRET&envDescription=WordPress%20URL%2C%20hostname%20for%20images%2C%20webhook%20secret%2C%20and%20WooCommerce%20API%20credentials&project-name=next-woo&repository-name=next-woo&demo-title=Next.js%20WooCommerce%20Starter&demo-url=https%3A%2F%2Fnext-woo.com"
             >
               {/* eslint-disable-next-line */}
               <img
@@ -151,13 +151,25 @@ export default function Home() {
             </Link>
             <a
               className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-              href="https://github.com/brijr/next-woo"
+              href="https://github.com/9d8dev/next-woo"
             >
               <Folder size={32} />
               <span>
                 GitHub
                 <span className="block text-sm text-muted-foreground">
                   View source code
+                </span>
+              </span>
+            </a>
+            <a
+              className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
+              href="https://github.com/9d8dev/next-woo/tree/main/plugin"
+            >
+              <Folder size={32} />
+              <span>
+                Plugin
+                <span className="block text-sm text-muted-foreground">
+                  WordPress revalidation plugin
                 </span>
               </span>
             </a>
