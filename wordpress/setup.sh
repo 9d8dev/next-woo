@@ -1,9 +1,23 @@
 #!/bin/bash
-set -e
+# Don't use set -e so script continues even if some commands fail
+
+# Change to WordPress directory
+cd /var/www/html
+
+# Wait for wp-config.php to exist (created by docker-entrypoint)
+echo "Waiting for WordPress configuration..."
+while [ ! -f /var/www/html/wp-config.php ]; do
+  sleep 2
+done
 
 # Wait for database to be ready
-until wp db check --allow-root 2>/dev/null; do
-  echo "Waiting for database..."
+echo "Waiting for database connection..."
+for i in $(seq 1 30); do
+  if wp db check --allow-root --path=/var/www/html 2>/dev/null; then
+    echo "Database connected!"
+    break
+  fi
+  echo "Database not ready, attempt $i/30..."
   sleep 3
 done
 
@@ -49,10 +63,9 @@ if ! wp plugin is-active next-revalidate --allow-root 2>/dev/null; then
   wp plugin activate next-revalidate --allow-root
 fi
 
-# Activate the headless theme (always run, safe if already active)
-# Note: Theme directory name must match the actual directory in wp-content/themes
+# Activate the headless theme
 echo "Activating Next.js Headless theme..."
-wp theme activate theme --allow-root || wp theme activate nextjs-headless --allow-root || true
+wp theme activate nextjs-headless --allow-root || echo "WARNING: Could not activate nextjs-headless theme"
 
 # Configure the plugin if NEXTJS_URL is set
 if [ -n "$NEXTJS_URL" ]; then
